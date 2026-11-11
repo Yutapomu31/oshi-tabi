@@ -1,0 +1,70 @@
+# CI（継続的インテグレーション）
+# PR を出したときと main が更新されたときに、品質チェックを自動で実行する。
+name: CI
+
+# きっかけ（いつ動かすか）
+on:
+  # PR の作成・更新のたびに動かす
+  pull_request:
+  # main にマージされたときにも動かし、main が動く状態かを確かめる
+  push:
+    branches: [main]
+
+# 権限は最小にする（コードを読むだけ）。鍵（Secrets）は使わない
+permissions:
+  contents: read
+
+# 同じ PR に続けて push したときは、古い実行を止めて新しい実行だけ残す
+# （結果を待つ時間と実行枠のむだを減らすため）。main への push は止めない
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    # 万一止まったときに、むだに待ち続けないようにする
+    timeout-minutes: 10
+    steps:
+      # リポジトリのコードを取り出す（取り出し後は Git の認証情報を残さない）
+      - name: コードを取得
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Node.js 22 を用意する。npm のダウンロード結果をキャッシュして2回目以降を速くする
+      - name: Node.js を用意
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      # package-lock.json どおりに依存パッケージを入れる（毎回同じ版になる）
+      - name: 依存パッケージを入れる
+        run: npm ci
+
+      # ESLint：書き方のミスや危ない書き方を見つける
+      - name: Lint（書き方チェック）
+        run: npm run lint
+
+      # Prettier：整形ルールどおりかを確認する（ファイルは書き換えない）
+      - name: 整形チェック
+        run: npm run format:check
+
+      # TypeScript：型の食い違いを見つける
+      - name: 型チェック
+        run: npm run typecheck
+
+      # Vitest：テストを実行する
+      - name: テスト
+        run: npm test
+
+      # Vite：公開用のファイルが作れるかを確認する
+      - name: ビルド
+        run: npm run build
+
+      # secretlint：リポジトリ全体に鍵・トークンが混入していないかを確認する
+      # （.gitignore と .secretlintignore の対象は除く）
+      - name: 鍵チェック
+        run: npm run secretlint
