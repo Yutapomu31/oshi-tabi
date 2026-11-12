@@ -7,3 +7,29 @@ body {
   margin: 0;
   padding: 2rem;
 }
+
+.camera-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.camera-controls button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+}
+
+.camera-message {
+  min-height: 1.5em;
+}
+
+.camera-video {
+  display: block;
+  width: 100%;
+  max-width: 640px;
+  background: #000;
+}
+
+.camera-video[hidden] {
+  display: none;
+}
