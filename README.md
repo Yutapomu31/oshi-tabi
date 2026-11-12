@@ -15,7 +15,7 @@ cd oshi-tabi
 npm install
 ```
 
-`npm install` を実行すると、コミット前に鍵の混入をチェックする仕組み（pre-commit フック）も自動で設定されます。
+`npm install` を実行すると、コミット前に鍵の混入をチェックする仕組み（pre-commit フックと pre-merge-commit フック）も自動で設定されます。
 
 ## コマンド
 
@@ -36,7 +36,8 @@ npm install
 
 - 鍵・トークン・パスワードは、コードにもリポジトリにも入れません。
 - `.env` と `.env.*` は Git の管理外です（`.env.example` のみ管理対象で、実際の値は書きません）。
-- コミット時に [secretlint](https://github.com/secretlint/secretlint) が、コミットしようとしているファイルをチェックし、鍵らしき文字列があればコミットを止めます（simple-git-hooks + lint-staged）。
+- コミット時と、競合のない merge で merge コミットを作るときに、[secretlint](https://github.com/secretlint/secretlint) が、コミットしようとしているファイルをチェックし、鍵らしき文字列があればコミットを止めます（simple-git-hooks + lint-staged）。
+- rebase と cherry-pick ではこのチェックが動きません。CI の鍵チェック（`npm run secretlint`）で確かめます。
 - ブラウザで動くコードに書いた値は、利用者から見えます。秘密の値をブラウザ側に置かないでください。
 
 ## ライセンス

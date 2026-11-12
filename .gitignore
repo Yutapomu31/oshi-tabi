@@ -147,3 +147,6 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# yomiyasu（文章推敲ツール）の検査記録
+.yomiyasu/
