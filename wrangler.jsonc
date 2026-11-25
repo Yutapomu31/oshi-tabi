@@ -1,0 +1,15 @@
+// Cloudflare Workers（Static Assets）の設定。Workers Builds（Git 連携）がこのファイルを読む。
+// 鍵・トークン・アカウント ID は書かない（API トークンは Cloudflare が自動で作るものを使う）。
+{
+  // Worker の名前。ダッシュボードの Worker の名前と同じにする（違うとビルドが失敗する）
+  "name": "oshi-tabi",
+  // Workers のランタイムの版を決める日付
+  "compatibility_date": "2026-11-24",
+  // 静的ファイルだけを公開する（Worker のスクリプトはないため main と binding は書かない）
+  "assets": {
+    // npm run build（Vite）の出力先
+    "directory": "./dist",
+  },
+  // Version URLs と workers.dev の Preview URLs を出さない（作業ブランチのプレビュー公開を止める）
+  "preview_urls": false,
+}
